@@ -1,0 +1,120 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GlueConnectorAndConnectionAccess",
+      "Effect": "Allow",
+      "Action": [
+        "glue:CreateConnection",
+        "glue:UpdateConnection",
+        "glue:DeleteConnection",
+        "glue:GetConnection",
+        "glue:GetConnections",
+        "glue:CreateConnector",
+        "glue:UpdateConnector",
+        "glue:DeleteConnector",
+        "glue:GetConnector",
+        "glue:GetConnectors",
+        "glue:GetMarketplaceCatalogObject",
+        "glue:CreateIntegration",
+        "glue:UpdateIntegration",
+        "glue:DeleteIntegration",
+        "glue:GetIntegration"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "GlueCatalogAccess",
+      "Effect": "Allow",
+      "Action": [
+        "glue:CreateDatabase",
+        "glue:UpdateDatabase",
+        "glue:DeleteDatabase",
+        "glue:GetDatabase",
+        "glue:GetDatabases",
+        "glue:CreateTable",
+        "glue:UpdateTable",
+        "glue:DeleteTable",
+        "glue:GetTable",
+        "glue:GetTables",
+        "glue:GetPartition",
+        "glue:GetPartitions",
+        "glue:CreatePartition",
+        "glue:UpdatePartition",
+        "glue:DeletePartition"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "GlueJobAndCrawlerAccess",
+      "Effect": "Allow",
+      "Action": [
+        "glue:CreateJob",
+        "glue:UpdateJob",
+        "glue:DeleteJob",
+        "glue:GetJob",
+        "glue:GetJobs",
+        "glue:StartJobRun",
+        "glue:GetJobRun",
+        "glue:GetJobRuns",
+        "glue:BatchStopJobRun",
+        "glue:CreateCrawler",
+        "glue:UpdateCrawler",
+        "glue:DeleteCrawler",
+        "glue:GetCrawler",
+        "glue:GetCrawlers",
+        "glue:StartCrawler",
+        "glue:StopCrawler",
+        "glue:GetCrawlerMetrics"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "MarketplaceAccess",
+      "Effect": "Allow",
+      "Action": [
+        "aws-marketplace:ViewSubscriptions",
+        "aws-marketplace:DescribeEntity",
+        "aws-marketplace:ListEntities",
+        "aws-marketplace:GetEntitlements",
+        "aws-marketplace:Subscribe",
+        "aws-marketplace:Unsubscribe"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "IAMPassRoleAccess",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:ListRoles",
+        "iam:PassRole"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLogsAccess",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "S3AccessForGlueJobs",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteObject",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
