@@ -93,6 +93,8 @@ spark = (
     .getOrCreate()
 )
 
+spark.conf.set("spark.sql.repl.eagerEval.enabled", True)
+
 # ───────────────────────────────────────────────
 #  Sample Data
 # ───────────────────────────────────────────────
@@ -153,6 +155,53 @@ flights_df = flights_df.withColumn(
     )
 )
 
-flights_df.show(truncate=False)
+# creating window_spec 
+
+window_spec = Window.partitionBy(F.col("flight_key"))\
+    .orderBy(F.col("event_ts").desc())
+
+flights_df = (
+    flights_df.withColumn(
+    "row_num",
+    F.row_number().over(window_spec))\
+        .filter(F.col("row_num")==1)\
+        .drop(F.col("row_num"))
+)
+
+# lets calculate departure delay 
+
+from pyspark.sql.types import LongType
+
+flights_df = flights_df.withColumn(
+    "dep_delay_min",
+    (F.unix_timestamp("actual_dep_ts")-F.unix_timestamp("scheduled_dep_ts"))/60
+)
+
+# finally the report layer , 
+
+report_df = (
+    flights_df.withColumn("dep_date",
+        F.to_date("scheduled_dep_ts"))
+    .groupBy("dep_airport","dep_date")
+    .agg(
+        F.count("flight_key").alias("total_flights"),
+        F.round(F.avg("dep_delay_min"),2).alias("avg_delay_min"),
+        # calculate % of delay where delay is more than 15 min 
+        F.round(
+            (
+                F.count(
+                    F.when(
+                        F.col("dep_delay_min")>=15,1
+                    )
+                ) / F.count("*")
+            )*100,2
+        ).alias("pct_of_delay_15plus")
+    )
+    .orderBy(F.col("dep_date"),F.col("dep_airport"))
+)
+
+report_df.show(truncate=False)
 
 # the de-duplication 
+
+
