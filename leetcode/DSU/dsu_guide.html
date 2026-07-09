@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSU (Disjoint Set Union) - বিস্তারিত গাইড</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans Bengali', 'Kalpurush', 'Siyam Rupali', Arial, sans-serif;
+            line-height: 1.8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #5a2d82;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #764ba2;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #5a2d82;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-align: justify;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 5px solid #ffc107;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+        }
+        .code-block pre {
+            margin: 0;
+        }
+        .keyword { color: #569cd6; }
+        .function { color: #dcdcaa; }
+        .comment { color: #6a9955; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .emoji {
+            font-size: 1.3em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #764ba2;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #764ba2;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 DSU (Disjoint Set Union)</h1>
+        <p style="text-align: center; color: #666; font-size: 1.2em;">
+            <span class="badge">Union-Find</span>
+            <span class="badge">বিচ্ছিন্ন সেট</span>
+            <span class="badge">ডেটা স্ট্রাকচার</span>
+        </p>
+
+        <div class="highlight">
+            <p><strong>সংক্ষিপ্ত পরিচিতি:</strong> DSU বা Disjoint Set Union হলো একটি ডেটা স্ট্রাকচার 
+            যা একাধিক সেট (set) কে দক্ষতার সাথে ম্যানেজ করে। এটি মূলত দুটি অপারেশন সাপোর্ট করে: 
+            <strong>Find</strong> (কোনো element কোন সেটে আছে তা খোঁজা) এবং <strong>Union</strong> 
+            (দুটি সেটকে একত্রিত করা)।</p>
+        </div>
+
+        <h2>📌 কখন DSU ব্যবহার করবেন?</h2>
+        <p>DSU তখনই ব্যবহার করবেন যখন সমস্যাটি নিচের বৈশিষ্ট্যগুলোর একটি বা একাধিক দেখায়:</p>
+        <ul>
+            <li><span class="emoji">🔹</span> <strong>Connectivity / Connected Components:</strong> 
+            দুটি node বা vertex আসলে connected কিনা তা চেক করতে হবে।</li>
+            <li><span class="emoji">🔹</span> <strong>Dynamic Connectivity:</strong> 
+            edge যোগ বা বিয়োগ করার পরেও connectivity বজায় রাখতে হবে।</li>
+            <li><span class="emoji">🔹</span> <strong>Grouping / Clustering:</strong> 
+            একাধিক element কে একটি গ্রুপে বা কম্পোনেন্টে বিভক্ত করতে হবে।</li>
+            <li><span class="emoji">🔹</span> <strong>Cycle Detection:</strong> 
+            গ্রাফে cycle আছে কিনা তা খুঁজে বের করতে হবে (বিশেষ করে Undirected Graph-এ)।</li>
+            <li><span class="emoji">🔹</span> <strong>Equivalence Relations:</strong> 
+            "সমতুল্য" (equivalent) সম্পর্ক নির্ধারণ করতে হবে।</li>
+        </ul>
+
+        <h2>🎯 এটি কি টাইপের অ্যালগোরিদম?</h2>
+        <div class="card">
+            <p><strong>উত্তর:</strong> DSU একটি <strong>Data Structure + Algorithm</strong> উভয়ই। 
+            এটি মূলত একটি <strong>Set-based / Graph-based</strong> অ্যালগোরিদম ক্যাটাগরিতে পড়ে।</p>
+            <p>এটি সাধারণত নিচের ধরনের সমস্যায় ব্যবহৃত হয়:</p>
+            <ul>
+                <li><strong>Graph Problems:</strong> Connected components, MST (Kruskal's Algorithm)</li>
+                <li><strong>Network Problems:</strong> Friend circles, social networks</li>
+                <li><strong>Grid Problems:</strong> Island counting, region merging</li>
+                <li><strong>Dynamic Problems:</strong> Online queries for connectivity</li>
+            </ul>
+        </div>
+
+        <h2>🧩 কোন টাইপের প্রব্লেমে DSU সবচেয়ে ভালো কাজ করে?</h2>
+        <table>
+            <tr>
+                <th>সমস্যার ধরন</th>
+                <th>উদাহরণ</th>
+                <th>DSU কেন ভালো</th>
+            </tr>
+            <tr>
+                <td>Connected Components</td>
+                <td>Number of Islands (variation), Friend Circles</td>
+                <td>O(α(n)) near constant time</td>
+            </tr>
+            <tr>
+                <td>Cycle Detection</td>
+                <td>Course Schedule, Redundant Connection</td>
+                <td>Quick union check</td>
+            </tr>
+            <tr>
+                <td>Minimum Spanning Tree</td>
+                <td>Kruskal's Algorithm</td>
+                <td>Efficient edge selection</td>
+            </tr>
+            <tr>
+                <td>Grid Merging</td>
+                <td>Max Area of Island, Number of Provinces</td>
+                <td>Dynamic grouping</td>
+            </tr>
+            <tr>
+                <td>Equivalence Classes</td>
+                <td>Accounts Merge, Sentence Similarity</td>
+                <td>Transitive closure</td>
+            </tr>
+        </table>
+
+        <h2>💡 Interview-এ কী দেখে বুঝবেন এটি DSU প্রব্লেম?</h2>
+        <div class="highlight">
+            <p>Interview-এ নিচের কিওয়ার্ড বা ক্লু গুলো শুনলে বুঝবেন এটি DSU সল্ভ করা যাবে:</p>
+        </div>
+        <ul>
+            <li><span class="emoji">✅</span> <strong>"Connected" / "Connection" / "Connectivity"</strong> 
+            - যদি বলে দুটি জিনিস connected কিনা চেক করতে হবে।</li>
+            <li><span class="emoji">✅</span> <strong>"Group" / "Cluster" / "Component"</strong> 
+            - যদি element গুলোকে গ্রুপে ভাগ করতে হয়।</li>
+            <li><span class="emoji">✅</span> <strong>"Merge" / "Union" / "Combine"</strong> 
+            - যদি বারবার কিছু মার্জ করতে হয়।</li>
+            <li><span class="emoji">✅</span> <strong>"Cycle" / "Redundant" / "Loop"</strong> 
+            - যদি cycle বা redundant edge খুঁজতে হয়।</li>
+            <li><span class="emoji">✅</span> <strong>"Network" / "Graph" / "Edges"</strong> 
+            - যদি graph বা network টাইপের ডেটা থাকে।</li>
+            <li><span class="emoji">✅</span> <strong>"Equivalent" / "Same group" / "Belongs to"</strong> 
+            - যদি সমতুল্য সম্পর্ক নির্ধারণ করতে হয়।</li>
+            <li><span class="emoji">✅</span> <strong>"Dynamic" / "Online queries"</strong> 
+            - যদি বারবার query আসে connectivity এর জন্য।</li>
+        </ul>
+
+        <h2>🛠️ DSU Implementation (Python)</h2>
+        <p>নিচে একটি standard DSU implementation দেওয়া হলো (Path Compression + Union by Rank সহ):</p>
+        <div class="code-block">
+<pre><span class="keyword">class</span> <span class="function">DSU</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, n):
+        self.parent = list(range(n))
+        self.rank = [<span class="number">0</span>] * n
+        self.count = n  <span class="comment"># number of connected components</span>
+
+    <span class="keyword">def</span> <span class="function">find</span>(self, x):
+        <span class="comment"># Path compression</span>
+        <span class="keyword">if</span> self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        <span class="keyword">return</span> self.parent[x]
+
+    <span class="keyword">def</span> <span class="function">union</span>(self, x, y):
+        <span class="comment"># Union by rank</span>
+        root_x = self.find(x)
+        root_y = self.find(y)
+        <span class="keyword">if</span> root_x == root_y:
+            <span class="keyword">return</span> <span class="keyword">False</span>  <span class="comment"># already connected</span>
+        <span class="keyword">if</span> self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+        <span class="keyword">elif</span> self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        <span class="keyword">else</span>:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += <span class="number">1</span>
+        self.count -= <span class="number">1</span>
+        <span class="keyword">return</span> <span class="keyword">True</span>
+
+    <span class="keyword">def</span> <span class="function">connected</span>(self, x, y):
+        <span class="keyword">return</span> self.find(x) == self.find(y)
+</pre>
+        </div>
+
+        <h2>⏱️ Time & Space Complexity</h2>
+        <div class="card">
+            <ul>
+                <li><strong>Time Complexity:</strong> 
+                Find এবং Union অপারেশনের জন্য <strong>O(α(n))</strong> যেখানে α হলো Inverse Ackermann Function 
+                (practically constant time)।</li>
+                <li><strong>Space Complexity:</strong> <strong>O(n)</strong> - parent এবং rank array এর জন্য।</li>
+            </ul>
+        </div>
+
+        <h2>📚 জনপ্রিয় DSU LeetCode Problems</h2>
+        <ul>
+            <li><strong>Number of Provinces (547)</strong> - Connected components in graph</li>
+            <li><strong>Redundant Connection (684)</strong> - Cycle detection in graph</li>
+            <li><strong>Accounts Merge (721)</strong> - Equivalence classes</li>
+            <li><strong>Number of Connected Components in an Undirected Graph (323)</strong></li>
+            <li><strong>Max Area of Island (695)</strong> - Grid merging</li>
+            <li><strong>Surrounded Regions (130)</strong> - Region grouping</li>
+            <li><strong>Friend Circles / Friend Requests</strong></li>
+            <li><strong>Minimum Spanning Tree (Kruskal's)</strong></li>
+        </ul>
+
+        <h2>🎓 সারসংক্ষেপ</h2>
+        <div class="highlight">
+            <p><strong>মনে রাখার ট্রিক:</strong></p>
+            <p>"<em>যদি সমস্যায় 'connect', 'group', 'merge', 'cycle', বা 'component' 
+            শব্দগুলো থাকে - চোখ বন্ধ করে DSU চিন্তা করুন!</em>"</p>
+        </div>
+
+        <div class="footer">
+            <p>তৈরি করা হয়েছে LeetCode Practice Folder-এর জন্য</p>
+            <p>📅 Date: 2026 | 📁 Folder: leetcode/DSU</p>
+        </div>
+    </div>
+</body>
+</html>
